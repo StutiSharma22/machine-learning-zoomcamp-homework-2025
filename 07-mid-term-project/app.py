@@ -18,7 +18,6 @@ transmission = sorted(car_data['transmission'].astype(str).unique())
 fuel_types = sorted(car_data['fuel_type'].astype(str).unique())
 engine_ccs = sorted(car_data['engine_cc'].astype(int).unique())
 owner_counts = sorted(car_data['owner_count'].astype(int).unique())
-car_ages = sorted(car_data['car_age'].astype(int).unique())
 insurance_options = sorted(car_data['insurance_valid'].astype(str).unique())
 colors = sorted(car_data['color'].astype(str).unique())
 service_history_options = sorted(car_data['service_history'].astype(str).unique())
@@ -35,7 +34,6 @@ def index():
         fuel_types=fuel_types,
         engine_ccs=engine_ccs,
         owner_counts=owner_counts,
-        car_ages=car_ages,
         insurance_options=insurance_options,
         colors=colors,
         service_history_options=service_history_options,
@@ -54,7 +52,6 @@ def predict():
         'fuel_type': form['fuel'],
         'engine_cc': float(form['engine_cc']),
         'owner_count': int(form['owner_count']),
-        'car_age': int(form['car_age']),
         'insurance_valid': form['insurance_valid'],
         'color': form['color'],
         'service_history': form['service_history'],

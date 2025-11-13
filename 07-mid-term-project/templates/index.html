@@ -130,16 +130,6 @@
                     </div>
                 </div>
 
-                <div class="row justify-content-center">
-                    <div class="col-auto form-group">
-                        <label>Car Age</label>
-                        <select class="form-control" name="car_age" required>
-                            {% for age in car_ages %}
-                                <option value="{{ age }}">{{ age }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
                     <div class="col-auto ms-3 form-group">
                         <label>Insurance Valid</label>
                         <select class="form-control" name="insurance_valid" required>
@@ -205,24 +195,21 @@
 </div>
 
 <script>
-function send_data(event) {
-    event.preventDefault();  // Stop form submission
+document.getElementById("car-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    const formData = new FormData(this);
+    document.getElementById("prediction").innerText = "Predicting...";
 
-    const form = document.getElementById("car-form");
-    const fd = new FormData(form);
-
-    document.getElementById("prediction").innerText = "Predicting price...";
-
-    fetch("/predict", { method: "POST", body: fd })
+    fetch("/predict", {method: "POST", body: formData})
         .then(resp => resp.text())
         .then(data => {
             document.getElementById("prediction").innerText = "Predicted Price: USD " + data;
         })
         .catch(err => {
-            console.error(err);
             document.getElementById("prediction").innerText = "Error predicting price";
+            console.error(err);
         });
-}
+});
 </script>
 
 <!-- Bootstrap JS -->
