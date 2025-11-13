@@ -1,52 +1,70 @@
-import streamlit as st
+from flask import Flask, render_template, request
 import pandas as pd
 import numpy as np
 import pickle
 
-# Load model
+app = Flask(__name__)
+
+# Load the trained model
 model = pickle.load(open("Model.pkl", "rb"))
 
-# Load processed data for dropdowns
-car = pd.read_csv("processed_data.csv")
+# Load preprocessed car data for populating dropdowns
+car_data = pd.read_csv("processed_data.csv")
 
-st.set_page_config(page_title="Used Car Price Predictor", layout="centered")
+# Prepare dropdown lists safely
+brands = sorted(car_data['brand'].astype(str).unique())
+years = sorted(car_data['make_year'].astype(int).unique(), reverse=True)
+transmission = sorted(car_data['transmission'].astype(str).unique())
+fuel_types = sorted(car_data['fuel_type'].astype(str).unique())
+engine_ccs = sorted(car_data['engine_cc'].astype(int).unique())
+owner_counts = sorted(car_data['owner_count'].astype(int).unique())
+car_ages = sorted(car_data['car_age'].astype(int).unique())
+insurance_options = sorted(car_data['insurance_valid'].astype(str).unique())
+colors = sorted(car_data['color'].astype(str).unique())
+service_history_options = sorted(car_data['service_history'].astype(str).unique())
+accidents = sorted(car_data['accidents_reported'].astype(str).unique())
+mileages = sorted(car_data['mileage_kmpl'].astype(float).unique())
 
-# Title with navy blue background
-st.markdown(
-    """
-    <div style="background-color:#001f5b;padding:15px;border-radius:5px">
-        <h1 style="color:white;text-align:center;">Used Car Price Predictor</h1>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+@app.route("/")
+def index():
+    return render_template(
+        "index.html",
+        brands=brands,
+        years=years,
+        transmission=transmission,
+        fuel_types=fuel_types,
+        engine_ccs=engine_ccs,
+        owner_counts=owner_counts,
+        car_ages=car_ages,
+        insurance_options=insurance_options,
+        colors=colors,
+        service_history_options=service_history_options,
+        accidents=accidents,
+        mileages=mileages
+    )
 
-st.write("##")  # spacing
+@app.route("/predict", methods=["POST"])
+def predict():
+    # Extract form data
+    form = request.form
+    X = pd.DataFrame([{
+        'brand': form['brand'],
+        'make_year': int(form['year']),
+        'transmission': form['transmission'],
+        'fuel_type': form['fuel'],
+        'engine_cc': float(form['engine_cc']),
+        'owner_count': int(form['owner_count']),
+        'car_age': int(form['car_age']),
+        'insurance_valid': form['insurance_valid'],
+        'color': form['color'],
+        'service_history': form['service_history'],
+        'accidents_reported': int(form['accidents_reported']),
+        'mileage_kmpl': float(form['mileage_kmpl'])
+    }])
+    # Make prediction
+    pred = model.predict(X)
+    print(pred[0])
+    return str(round(pred[0], 2))
 
-# Dropdowns for inputs
-brand = st.selectbox("Select Car Brand", sorted(car['brand'].unique()))
-year = st.selectbox("Select Year", sorted(car['make_year'].unique(), reverse=True))
-transmission = st.selectbox("Select Transmission Type", sorted(car['transmission'].unique()))
-fuel_type = st.selectbox("Select Fuel Type", sorted(car['fuel_type'].unique()))
-engine_cc = st.selectbox("Engine CC", sorted(car['engine_cc'].unique()))
-owner_count = st.selectbox("Owner Count", sorted(car['owner_count'].unique()))
-car_age = st.selectbox("Car Age", sorted(car['car_age'].unique()))
-insurance_valid = st.selectbox("Insurance Valid", ["Yes", "No"])
-color = st.selectbox("Color", sorted(car['color'].unique()))
-service_history = st.selectbox("Service History", ["Full", "Partial", "None"])
-accidents_reported = st.selectbox("Accidents Reported", sorted(car['accidents_reported'].unique()))
-mileage_kmpl = st.selectbox("Mileage (kmpl)", sorted(car['mileage_kmpl'].unique()))
-
-st.write("##")  # spacing
-
-# Predict button
-if st.button("Predict Price"):
-    # Prepare input for model
-    X = [[brand, year, transmission, fuel_type, engine_cc,
-          owner_count, car_age, insurance_valid, color,
-          service_history, accidents_reported, mileage_kmpl]]
-    
-    # Predict
-    prediction = model.predict(X)
-    
-    st.success(f"Predicted Price: USD {np.round(prediction[0], 2)}")
+if __name__ == "__main__":
+    app.run(debug=True)
