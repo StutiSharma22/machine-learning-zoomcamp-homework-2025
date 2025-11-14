@@ -5,7 +5,7 @@ import pickle
 app = Flask(__name__)
 
 # Load trained model
-model = pickle.load(open("Model.pkl", "rb"))
+model = pickle.load(open("/Model.pkl", "rb"))
 
 # Load preprocessed car data for dropdowns
 car_data = pd.read_csv("processed_data.csv")
