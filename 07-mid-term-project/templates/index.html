@@ -4,72 +4,78 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Used Car Price Predictor</title>
-
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.rtl.min.css" crossorigin="anonymous">
-
     <style>
-        /* Card header with navy blue background */
-        .card-header {
-            background-color: #001f5b;  /* Navy blue */
-            color: #ffffff;             /* White text */
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
+    /* Full page background */
+    body {
+        background-image: url('/static/css/car_bg.png');
+        background-size: cover;       /* cover entire screen */
+        background-position: center;  /* center image */
+        background-repeat: no-repeat;
+        height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;      /* horizontal center */
+        align-items: center;          /* vertical center */
+        font-family: Arial, sans-serif;
+    }
 
-        /* Dropdowns style */
-        select.form-control {
-            width: 200px;
-            background-color: #ffffff;  /* White background */
-            color: #000000;             /* Black text */
-            font-size: 0.9rem;
-            padding: 0.25rem 0.5rem;
-            height: auto;
-            border-radius: 0.25rem;
-        }
+    /* Floating card */
+    .card {
+        background-color: rgba(255, 255, 255, 0.7); /* semi-transparent */
+        border-radius: 15px;
+        padding: 20px;
+        width: 500px;             /* fixed width */
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5); /* soft shadow */
+        color: #001f5b;
+    }
 
-        /* Submit button width matches dropdowns */
-        button.btn-primary {
-            width: 200px;
-            background-color: #001f5b;  /* Navy blue */
-            color: #ffffff;             /* White text */
-            border: none;
-            font-size: 0.9rem;
-            padding: 0.35rem 0.5rem;
-        }
+    /* Card header */
+    .card-header {
+        background-color: #001f5b; 
+        color: #fff; 
+        text-align: center; 
+        font-size: 1.5rem; 
+        font-weight: bold; 
+        border-radius: 10px 10px 0 0;
+        padding: 10px;
+    }
 
-        /* Center the prediction text */
-        #prediction {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 1.2rem;
-            color: #ffffff;  /* White text for prediction on dark card */
-        }
+    /* Form elements */
+    select.form-control, button.btn-primary {
+        width: 100%;  /* take full card width */
+        font-size: 0.9rem;
+        margin-top: 5px;
 
-        /* Reduce vertical spacing between form groups */
-        .form-group {
-            margin-bottom: 0.75rem;
-        }
+    }
 
-        /* Card body background */
-        .card-body {
-            background-color: #ffffff;  /* White background */
-        }
-    </style>
+    button.btn-primary {
+        background-color: #001f5b;
+        color: #fff;
+        border: none;
+    }
+
+    /* Prediction text */
+    #prediction {
+        margin-top: 20px;
+        text-align: center;
+        font-size: 1.2rem;
+        color: #001f5b;
+        font-weight: bold;
+    }
+
+    .form-group {
+        margin-bottom: 0.75rem;
+    }
+</style>
 </head>
 <body class="bg-dark text-white">
-
 <div class="container mt-5">
     <div class="card">
-        <div class="card-header">
-            Used Car Price Predictor
-        </div>
+        <div class="card-header">Used Car Price Predictor</div>
         <div class="card-body">
-
-            <form id="car-form" method="post" action="/predict" onsubmit="send_data(event)">
-
-                <!-- Dropdowns arranged in rows -->
+            <form id="car-form">
+                <!-- Row 1: Brand and Make Year -->
                 <div class="row justify-content-center">
                     <div class="col-auto form-group">
                         <label>Car Brand</label>
@@ -79,7 +85,6 @@
                             {% endfor %}
                         </select>
                     </div>
-
                     <div class="col-auto ms-3 form-group">
                         <label>Make Year</label>
                         <select class="form-control" name="year" required>
@@ -90,6 +95,7 @@
                     </div>
                 </div>
 
+                <!-- Row 2: Transmission and Fuel Type -->
                 <div class="row justify-content-center">
                     <div class="col-auto form-group">
                         <label>Transmission</label>
@@ -99,7 +105,6 @@
                             {% endfor %}
                         </select>
                     </div>
-
                     <div class="col-auto ms-3 form-group">
                         <label>Fuel Type</label>
                         <select class="form-control" name="fuel" required>
@@ -110,6 +115,7 @@
                     </div>
                 </div>
 
+                <!-- Row 3: Engine CC and Owner Count -->
                 <div class="row justify-content-center">
                     <div class="col-auto form-group">
                         <label>Engine CC</label>
@@ -119,7 +125,6 @@
                             {% endfor %}
                         </select>
                     </div>
-
                     <div class="col-auto ms-3 form-group">
                         <label>Owner Count</label>
                         <select class="form-control" name="owner_count" required>
@@ -130,17 +135,17 @@
                     </div>
                 </div>
 
-                    <div class="col-auto ms-3 form-group">
-                        <label>Insurance Valid</label>
-                        <select class="form-control" name="insurance_valid" required>
-                            <option value="Yes">Yes</option>
-                            <option value="No">No</option>
-                        </select>
-                    </div>
-                </div>
-
+                <!-- Row 4: Insurance Valid and Color -->
                 <div class="row justify-content-center">
                     <div class="col-auto form-group">
+                        <label>Insurance Valid</label>
+                        <select class="form-control" name="insurance_valid" required>
+                            {% for ins in insurance_options %}
+                                <option value="{{ ins }}">{{ ins }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto ms-3 form-group">
                         <label>Color</label>
                         <select class="form-control" name="color" required>
                             {% for c in colors %}
@@ -148,19 +153,19 @@
                             {% endfor %}
                         </select>
                     </div>
-
-                    <div class="col-auto ms-3 form-group">
-                        <label>Service History</label>
-                        <select class="form-control" name="service_history" required>
-                            <option value="Full">Full</option>
-                            <option value="Partial">Partial</option>
-                            <option value="None">None</option>
-                        </select>
-                    </div>
                 </div>
 
+                <!-- Row 5: Service History and Accidents Reported -->
                 <div class="row justify-content-center">
                     <div class="col-auto form-group">
+                        <label>Service History</label>
+                        <select class="form-control" name="service_history" required>
+                            {% for sh in service_history_options %}
+                                <option value="{{ sh }}">{{ sh }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-auto ms-3 form-group">
                         <label>Accidents Reported</label>
                         <select class="form-control" name="accidents_reported" required>
                             {% for a in accidents %}
@@ -168,8 +173,11 @@
                             {% endfor %}
                         </select>
                     </div>
+                </div>
 
-                    <div class="col-auto ms-3 form-group">
+                <!-- Row 6: Mileage -->
+                <div class="row justify-content-center">
+                    <div class="col-auto form-group">
                         <label>Mileage (kmpl)</label>
                         <select class="form-control" name="mileage_kmpl" required>
                             {% for m in mileages %}
@@ -179,13 +187,10 @@
                     </div>
                 </div>
 
-                <!-- Submit button -->
+                <!-- Submit Button -->
                 <div class="row justify-content-center mt-3">
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary" >Predict Price</button>
-                    </div>
+                    <div class="col-auto"><button type="submit" class="btn btn-primary">Predict Price</button></div>
                 </div>
-
             </form>
 
             <!-- Prediction output -->
@@ -199,11 +204,10 @@ document.getElementById("car-form").addEventListener("submit", function(e){
     e.preventDefault();
     const formData = new FormData(this);
     document.getElementById("prediction").innerText = "Predicting...";
-
     fetch("/predict", {method: "POST", body: formData})
-        .then(resp => resp.text())
+        .then(resp => resp.json())
         .then(data => {
-            document.getElementById("prediction").innerText = "Predicted Price: USD " + data;
+            document.getElementById("prediction").innerText = "Predicted Price: USD " + data.prediction;
         })
         .catch(err => {
             document.getElementById("prediction").innerText = "Error predicting price";
@@ -212,7 +216,6 @@ document.getElementById("car-form").addEventListener("submit", function(e){
 });
 </script>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>

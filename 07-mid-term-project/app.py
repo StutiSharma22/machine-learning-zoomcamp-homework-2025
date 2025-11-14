@@ -1,17 +1,16 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
-import numpy as np
 import pickle
 
 app = Flask(__name__)
 
-# Load the trained model
+# Load trained model
 model = pickle.load(open("Model.pkl", "rb"))
 
-# Load preprocessed car data for populating dropdowns
+# Load preprocessed car data for dropdowns
 car_data = pd.read_csv("processed_data.csv")
 
-# Prepare dropdown lists safely
+# Prepare dropdown lists
 brands = sorted(car_data['brand'].astype(str).unique())
 years = sorted(car_data['make_year'].astype(int).unique(), reverse=True)
 transmission = sorted(car_data['transmission'].astype(str).unique())
@@ -43,7 +42,6 @@ def index():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    # Extract form data
     form = request.form
     X = pd.DataFrame([{
         'brand': form['brand'],
@@ -58,10 +56,10 @@ def predict():
         'accidents_reported': int(form['accidents_reported']),
         'mileage_kmpl': float(form['mileage_kmpl'])
     }])
-    # Make prediction
-    pred = model.predict(X)
-    print(pred[0])
-    return str(round(pred[0], 2))
+    pred = model.predict(X)[0]
+
+    # Return JSON for AJAX
+    return jsonify({'prediction': round(pred, 2)})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5001, debug=True)
